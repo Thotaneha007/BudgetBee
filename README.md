@@ -1,94 +1,165 @@
 # 🐝 BudgetBee: Smart Spending Made Simple
 
-BudgetBee is a professional-grade, AI-powered personal finance management application designed to help users track, analyze, and optimize their financial health. Built with a focus on modern fintech aesthetics and user experience, it combines traditional tracking with state-of-the-art AI insights.
+[![Flask](https://img.shields.io/badge/Flask-2.3.2-blue.svg)](https://flask.palletsprojects.com/)
+[![SQLite](https://img.shields.io/badge/SQLite-3.x-green.svg)](https://www.sqlite.org/)
+[![Gemini AI](https://img.shields.io/badge/AI-Gemini%201.5-orange.svg)](https://ai.google.dev/)
+[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
-![Dashboard Preview](https://via.placeholder.com/1200x600?text=BudgetBee+Dashboard+Preview)
+**BudgetBee** is a professional-grade, AI-powered personal finance management web application designed to empower users with smarter spending habits. Built with a focus on modern fintech aesthetics and user experience, BudgetBee combines traditional financial tracking with state-of-the-art AI insights and OCR technology to provide a comprehensive view of your financial health.
 
-## 🚀 Key Features
+---
 
-- **📊 Comprehensive Analytics**: Dynamic dashboards powered by Chart.js showing Income vs. Expenses, category breakdowns, and yearly trends.
-- **🤖 AI Financial Assistant**: Personalized financial advice and spending analysis generated using Google's Gemini 1.5 Flash API.
-- **📸 OCR Receipt Scanning**: Instantly add expenses by uploading receipt images—powered by Tesseract OCR.
-- **🎯 Smart Goals**: Set, track, and visualize your savings targets with interactive progress bars.
-- **🔄 Recurring & Subscriptions**: Track fixed costs and service renewals automatically with dedicated identifiers.
-- **📂 Professional Exports**: Export your financial data to PDF or Excel for offline reporting.
-- **🌐 Multilingual Support**: Fully localized interface supporting English, Hindi, and Telugu.
-- **🌓 Dark/Light Mode**: A beautiful, theme-aware UI that adapts to your preferences.
-- **🎤 Voice Input**: Hands-free transaction entry using browser-based Speech Recognition.
+## 📸 Dashboard Preview
+
+<div align="center">
+  <img src="screenshots/dashboard.png" alt="BudgetBee Dashboard" width="900" style="border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+  <p><i>The central hub for your financial overview, featuring real-time statistics and AI-generated advice.</i></p>
+</div>
+
+---
+
+## ✨ Core Features
+
+### 📊 Intelligent Analytics
+Visualize your financial journey with precision. BudgetBee utilizes **Chart.js** to deliver dynamic, interactive visualizations including:
+- **Monthly Trends**: Compare income vs. expenses over time.
+- **Category Breakdown**: Understand exactly where your money goes.
+- **Yearly Projections**: True yearly aggregation for long-term financial planning.
+
+### 🤖 AI Financial Advisor
+Leveraging Google's **Gemini 1.5 Flash API**, BudgetBee analyzes your spending patterns to provide:
+- Personalized saving recommendations.
+- Alerts on overspending in specific categories.
+- Actionable financial tips tailored to your current budget.
+
+### 📸 OCR Receipt Scanning
+Forget manual entry. Simply snap a photo of your receipt, and our integrated **Tesseract OCR** engine will automatically extract the merchant name, date, and total amount, populating your expense form instantly.
+
+### 🎯 Goal Tracking & Budgeting
+- **Smart Goals**: Set targets for your next vacation or a house down payment. Track your progress with interactive bars.
+- **Dynamic Budgeting**: Set monthly limits and monitor your utilization in real-time.
+- **Recurring Transactions**: Automatically track subscriptions and fixed monthly costs.
+
+### 🎤 Seamless Interaction
+- **Voice Input**: Add transactions hands-free using integrated speech recognition.
+- **Multilingual Support**: Fully localized for English, Hindi, and Telugu.
+- **Dark/Light Mode**: A premium, theme-aware UI that adapts to your environment.
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Python, Flask
-- **Database**: SQLite
-- **Frontend**: HTML5, Vanilla CSS3 (Custom Design System), JavaScript (ES6+)
-- **Charts**: Chart.js
-- **AI**: Google Generative AI (Gemini API)
-- **OCR**: Pytesseract, Pillow
-- **Export**: ReportLab (PDF), Openpyxl (Excel)
-- **Icons**: Phosphor Icons
+| Component | Technology |
+| :--- | :--- |
+| **Backend** | Python / Flask |
+| **Database** | SQLite (Production-ready schema) |
+| **Frontend** | HTML5 / CSS3 / JavaScript (ES6+) |
+| **Charts** | Chart.js |
+| **AI Engine** | Google Gemini API |
+| **OCR** | Pytesseract / Pillow |
+| **Exports** | ReportLab (PDF) / Openpyxl (Excel) |
+| **Design** | Phosphor Icons / Custom CSS Grid System |
 
-## ⚙️ Installation & Setup
+---
+
+## 🚀 Installation & Setup
 
 ### Prerequisites
-- Python 3.8+
-- Tesseract OCR (Optional, for receipt scanning)
+- Python 3.8 or higher
+- [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract) (for receipt scanning)
 
-### Steps
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/BudgetBee.git
-   cd BudgetBee
-   ```
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Thotaneha007/BudgetBee.git
+cd BudgetBee
+```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+### 2. Set Up Virtual Environment
+**Windows:**
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+**Mac/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.get
-   ```
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
 
-4. **Environment Variables**:
-   Create a `.env` file in the root directory and add your keys:
-   ```env
-   SECRET_KEY=your_flask_secret_key
-   GEMINI_API_KEY=your_google_gemini_api_key
-   ```
+### 4. Configure Environment Variables
+Create a `.env` file in the root directory and add the following:
+```env
+SECRET_KEY=your_secure_flask_key
+GEMINI_API_KEY=your_google_gemini_api_key
+```
 
-5. **Run the application**:
-   ```bash
-   python run.py
-   ```
-   Open `http://127.0.0.1:5000` in your browser.
+### 5. Run the Application
+```bash
+python run.py
+```
+Visit `http://127.0.0.1:5000` in your browser.
 
-## 📁 Project Structure
+---
+
+## 📂 Project Structure
 
 ```text
 BudgetBee/
 ├── app/
-│   ├── routes/          # Flask Blueprints for auth, dashboard, expenses, etc.
-│   ├── static/          # CSS, JS, and image assets
-│   ├── templates/       # Jinja2 HTML templates
-│   ├── utils/           # AI, OCR, and Export helpers
-│   └── __init__.py      # App factory and DB initialization
-├── config.py            # Configuration settings
-├── run.py               # Application entry point
-├── schema.sql           # Database schema
-└── requirements.txt     # Python dependencies
+│   ├── routes/          # Flask Blueprints (Auth, API, Expenses, Income, etc.)
+│   ├── static/          # CSS Design Tokens, Vanilla JS, and Assets
+│   ├── templates/       # Localized Jinja2 HTML Templates
+│   ├── utils/           # AI, OCR, and PDF/Excel logic
+│   └── __init__.py      # App factory & Database initialization
+├── run.py               # Main entry point
+├── config.py            # App configurations
+├── schema.sql           # Database structure
+└── requirements.txt     # Dependency list
 ```
 
-## 📈 Future Enhancements
+---
 
-- [ ] **Bank Integration**: Plaid API integration for automated transaction syncing.
-- [ ] **Push Notifications**: Low budget alerts and recurring payment reminders.
-- [ ] **Advanced ML**: Predict future spending based on historical data patterns.
-- [ ] **Mobile App**: Native iOS/Android version using React Native.
+## 🖼️ Application Gallery
 
-## 📄 License
-Distributed under the MIT License. See `LICENSE` for more information.
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="screenshots/analytics.png" width="400"><br><p align="center">Advanced Analytics</p></td>
+      <td><img src="screenshots/ai-insights.png" width="400"><br><p align="center">AI Financial Advice</p></td>
+    </tr>
+    <tr>
+      <td><img src="screenshots/expenses.png" width="400"><br><p align="center">Transaction Management</p></td>
+      <td><img src="screenshots/login.png" width="400"><br><p align="center">Secure Authentication</p></td>
+    </tr>
+  </table>
+</div>
 
 ---
-*Built with ❤️ for better financial freedom.*
+
+## 💡 The Vision
+BudgetBee was inspired by the need for a financial tool that doesn't just record data, but *understands* it. Most finance apps feel like spreadsheets; BudgetBee is designed to feel like a financial companion. The goal was to bridge the gap between complex banking software and simple manual logs using the power of Generative AI.
+
+---
+
+## 📈 Future Roadmap
+- [ ] **Bank Sync**: Integration with Plaid for automated transaction importing.
+- [ ] **ML Spending Predictions**: Use historical data to predict next month's utility bills.
+- [ ] **Push Notifications**: Low-budget alerts and recurring payment reminders.
+- [ ] **PWA Support**: Full offline data entry and mobile app-like experience.
+
+---
+
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by <a href="https://github.com/Thotaneha007">Neha</a></p>
+  <p><i>Empowering your financial freedom, one bee at a time.</i></p>
+</div>
