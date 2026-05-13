@@ -67,7 +67,7 @@ Forget manual entry. Simply snap a photo of your receipt, and our integrated **T
 ### Prerequisites
 - Python 3.8 or higher
 - [Tesseract OCR Engine](https://github.com/tesseract-ocr/tesseract) (for receipt scanning)
-- > Note:
+-  Note:
 > OCR receipt scanning requires Tesseract OCR installation for full functionality.
 > If not installed, the application gracefully falls back to demo extraction mode.
 
