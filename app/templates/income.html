@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block page_title %}Income{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    
+    <!-- Add Income Form -->
+    <div class="stat-card glass-card" style="grid-column: span 4; align-self: start;">
+        <h3 style="margin-bottom: 24px;">Add New Income</h3>
+        
+        <form method="POST" action="{{ url_for('income.income_view') }}">
+            <div class="form-group">
+                <label class="form-label">Source Name</label>
+                <input type="text" name="source" class="form-control" required placeholder="E.g., Salary, Freelance">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Amount (₹)</label>
+                <input type="number" step="0.01" name="amount" class="form-control" required placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-control" required>
+                    <option value="Salary">Salary</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Investment">Investment</option>
+                    <option value="Gifts">Gifts/Refunds</option>
+                    <option value="Scholarship">Scholarship</option>
+                    <option value="Pocket Money">Pocket Money</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <!-- Auto fill today's date using JS -->
+                <input type="date" name="date" id="incomeDate" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea name="notes" class="form-control" rows="2" placeholder="Any details..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                <i class="ph ph-plus"></i> Add Income
+            </button>
+        </form>
+    </div>
+
+    <!-- Income List -->
+    <div class="chart-card glass-card" style="grid-column: span 8;">
+        
+        <!-- Filters -->
+        <div style="margin-bottom: 24px;">
+            <form method="GET" action="{{ url_for('income.income_view') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; width: 100%;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.8rem;">Month</label>
+                    <input type="month" name="month" class="form-control" value="{{ request.args.get('month', '') }}">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.8rem;">Category</label>
+                    <select name="category" class="form-control">
+                        <option value="">All Categories</option>
+                        <option value="Salary" {% if request.args.get('category') == 'Salary' %}selected{% endif %}>Salary</option>
+                        <option value="Freelance" {% if request.args.get('category') == 'Freelance' %}selected{% endif %}>Freelance</option>
+                        <option value="Investment" {% if request.args.get('category') == 'Investment' %}selected{% endif %}>Investment</option>
+                        <option value="Gifts" {% if request.args.get('category') == 'Gifts' %}selected{% endif %}>Gifts</option>
+                        <option value="Scholarship" {% if request.args.get('category') == 'Scholarship' %}selected{% endif %}>Scholarship</option>
+                        <option value="Pocket Money" {% if request.args.get('category') == 'Pocket Money' %}selected{% endif %}>Pocket Money</option>
+                        <option value="Other" {% if request.args.get('category') == 'Other' %}selected{% endif %}>Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.8rem;">Min Amount</label>
+                    <input type="number" name="min_amount" class="form-control" placeholder="0" value="{{ request.args.get('min_amount', '') }}">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; display: flex; align-items: flex-end; gap: 8px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Apply</button>
+                    <a href="{{ url_for('income.income_view') }}" class="btn btn-icon" title="Clear Filters" style="background: var(--surface-solid); border: 1px solid var(--border); color: var(--text-main);"><i class="ph ph-x"></i></a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Source & Category</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in income %}
+                    <tr>
+                        <td style="white-space: nowrap;">{{ item.date }}</td>
+                        <td>
+                            <div style="font-weight: 500;">{{ item.source }}</div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                <span class="category-badge" style="font-size: 0.75rem; padding: 2px 8px; background: rgba(16, 185, 129, 0.1); color: var(--secondary); border-color: var(--secondary);">
+                                    {{ item.category }}
+                                </span>
+                            </div>
+                        </td>
+                        <td style="font-weight: 600; color: var(--secondary);">
+                            +₹{{ "%.2f"|format(item.amount) }}
+                        </td>
+                        <td>
+                            <form method="POST" action="{{ url_for('income.delete_income', id=item.id) }}" onsubmit="return confirm('Delete this income?');" style="display: inline;">
+                                <button type="submit" class="btn btn-icon" style="color: var(--danger); width: 32px; height: 32px;" title="Delete">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="ph ph-wallet empty-state-icon"></i>
+                                <h4 style="margin-bottom: 8px;">No income recorded</h4>
+                                <p>Start tracking your earnings.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-fill today's date
+    document.getElementById('incomeDate').valueAsDate = new Date();
+</script>
+{% endblock %}

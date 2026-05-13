@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block page_title %}Savings Goals{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    
+    <!-- Add Goal Form -->
+    <div class="stat-card glass-card" style="grid-column: span 4; align-self: start;">
+        <h3 style="margin-bottom: 24px;">Create New Goal</h3>
+        
+        <form method="POST" action="{{ url_for('goals.goals_view') }}">
+            <input type="hidden" name="action" value="add">
+            <div class="form-group">
+                <label class="form-label">Goal Name</label>
+                <input type="text" name="name" class="form-control" required placeholder="E.g., MacBook Pro, Maldives Trip">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Target Amount (₹)</label>
+                <input type="number" step="0.01" name="target_amount" class="form-control" required placeholder="0.00">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Deadline (Optional)</label>
+                <input type="date" name="deadline" class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 16px;">
+                <i class="ph ph-plus"></i> Set Goal
+            </button>
+        </form>
+    </div>
+
+    <!-- Goals List -->
+    <div style="grid-column: span 8; display: flex; flex-direction: column; gap: 24px;">
+        {% for goal in goals %}
+        {% set progress = (goal.current_amount / goal.target_amount * 100) | round if goal.target_amount > 0 else 0 %}
+        <div class="glass-card fade-in">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div>
+                    <h3 style="margin-bottom: 4px;">{{ goal.name }}</h3>
+                    <p style="font-size: 0.9rem;">Target: ₹{{ "%.2f"|format(goal.target_amount) }} {% if goal.deadline %}| Deadline: {{ goal.deadline }}{% endif %}</p>
+                </div>
+                <div style="text-align: right;">
+                    <span class="category-badge" style="background: rgba(245, 158, 11, 0.1); color: var(--primary); border-color: var(--primary); font-weight: 600;">
+                        {{ progress }}%
+                    </span>
+                    <form method="POST" action="{{ url_for('goals.delete_goal', id=goal.id) }}" onsubmit="return confirm('Delete this goal?');" style="margin-top: 8px;">
+                        <button type="submit" class="btn-icon" style="color: var(--danger); border: none; background: transparent;">
+                            <i class="ph ph-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div style="width: 100%; height: 12px; background: var(--background); border-radius: 6px; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border);">
+                <div style="width: {{ progress }}%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-hover)); transition: width 1s ease-out;"></div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-main);">
+                    ₹{{ "%.2f"|format(goal.current_amount) }} <span style="font-weight: 400; color: var(--text-muted); font-size: 0.9rem;">saved</span>
+                </div>
+                
+                <form method="POST" action="{{ url_for('goals.goals_view') }}" style="display: flex; gap: 8px;">
+                    <input type="hidden" name="action" value="update">
+                    <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                    <input type="number" step="0.01" name="amount" class="form-control" placeholder="Add savings" style="width: 120px; padding: 6px 12px;" required>
+                    <button type="submit" class="btn btn-primary" style="padding: 6px 12px;">Add</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="glass-card empty-state">
+            <i class="ph ph-target empty-state-icon"></i>
+            <h3>No active goals</h3>
+            <p>Start saving for your dreams today.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

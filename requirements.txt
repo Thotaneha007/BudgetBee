@@ -1,0 +1,9 @@
+Flask==3.0.3
+Werkzeug==3.0.3
+google-generativeai
+pandas
+openpyxl
+reportlab
+pytesseract
+Pillow
+python-dotenv

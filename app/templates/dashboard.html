@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block page_title %}<span data-i18n="nav.dashboard">Dashboard</span>{% endblock %}
+
+{% block content %}
+
+<!-- AI Insights Section -->
+<div style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 data-i18n="dashboard.ai_insight" style="display: flex; align-items: center; gap: 8px;">
+            <i class="ph ph-sparkle" style="color: var(--primary);"></i> BudgetBee Assistant
+        </h3>
+        <button id="refreshAiBtn" class="btn btn-icon" style="width: 32px; height: 32px;" title="Refresh Insights">
+            <i class="ph ph-arrows-clockwise"></i>
+        </button>
+    </div>
+    
+    <div id="aiInsightsContainer" class="ai-assistant-container">
+        <!-- AI cards will be injected here -->
+        <div class="insight-card fade-in">
+            <div class="insight-icon-wrapper">
+                <i class="ph ph-spinner ph-spin"></i>
+            </div>
+            <div class="insight-content">
+                <div class="insight-title">Analyzing</div>
+                <div class="insight-text">Reviewing your recent spending patterns...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+    <a href="{{ url_for('api.export_pdf') }}" class="btn" style="background: var(--surface-solid); border: 1px solid var(--border); color: var(--danger);">
+        <i class="ph ph-file-pdf"></i> Export PDF
+    </a>
+    <a href="{{ url_for('api.export_excel') }}" class="btn" style="background: var(--surface-solid); border: 1px solid var(--border); color: var(--secondary);">
+        <i class="ph ph-file-xls"></i> Export Excel
+    </a>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Stat Cards -->
+    <div class="stat-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-title">Monthly Income</div>
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary);">
+                <i class="ph ph-wallet"></i>
+            </div>
+        </div>
+        <div class="stat-value">₹{{ "%.2f"|format(monthly_income) }}</div>
+    </div>
+    
+    <div class="stat-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-title">Monthly Spent</div>
+            <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);">
+                <i class="ph ph-shopping-cart"></i>
+            </div>
+        </div>
+        <div class="stat-value">₹{{ "%.2f"|format(monthly_spent) }}</div>
+    </div>
+    
+    <div class="stat-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-title">Monthly Savings</div>
+            <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+                <i class="ph ph-piggy-bank"></i>
+            </div>
+        </div>
+        <div class="stat-value" style="color: {% if monthly_savings >= 0 %}var(--secondary){% else %}var(--danger){% endif %};">
+            ₹{{ "%.2f"|format(monthly_savings) }}
+        </div>
+    </div>
+    
+    <div class="stat-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="stat-title">Total Balance</div>
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--primary);">
+                <i class="ph ph-bank"></i>
+            </div>
+        </div>
+        <div class="stat-value">₹{{ "%.2f"|format(total_balance) }}</div>
+    </div>
+
+    <!-- Gamification Badges -->
+    <div class="stat-card glass-card" style="grid-column: span 12; display: flex; flex-direction: row; gap: 16px; align-items: center; overflow-x: auto;">
+        <div style="font-weight: 600; min-width: max-content; margin-right: 16px;">
+            <i class="ph ph-medal" style="color: #F59E0B; font-size: 1.2rem; margin-right: 4px;"></i> Achievements
+        </div>
+        
+        <!-- Logic for badges -->
+        {% if monthly_budget > 0 and monthly_spent < monthly_budget * 0.5 %}
+        <div class="category-badge" style="background: rgba(16, 185, 129, 0.1); border-color: var(--secondary); color: var(--secondary);">
+            <i class="ph ph-star"></i> Super Saver
+        </div>
+        {% endif %}
+        
+        {% if total_spent > 0 %}
+        <div class="category-badge" style="background: rgba(245, 158, 11, 0.1); border-color: var(--primary); color: var(--primary);">
+            <i class="ph ph-rocket"></i> Tracker Pro
+        </div>
+        {% endif %}
+        
+        {% if monthly_budget > 0 and monthly_spent <= monthly_budget %}
+        <div class="category-badge" style="background: rgba(245, 158, 11, 0.1); border-color: #F59E0B; color: #F59E0B;">
+            <i class="ph ph-target"></i> On Target
+        </div>
+        {% endif %}
+        
+        {% if not (monthly_budget > 0 and monthly_spent < monthly_budget * 0.5) and not (total_spent > 0) and not (monthly_budget > 0 and monthly_spent <= monthly_budget) %}
+        <div style="color: var(--text-muted); font-size: 0.9rem;">
+            Set a budget and track expenses to earn badges!
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Financial Health & Budget Status -->
+    <div class="stat-card glass-card" style="grid-column: span 6;">
+        <h3 style="margin-bottom: 16px;">Financial Health</h3>
+        <div style="display: flex; align-items: center; gap: 24px;">
+            <div style="position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 36 36" style="width: 100%; height: 100%; transform: rotate(-90deg);">
+                    <circle cx="18" cy="18" r="16" fill="none" stroke="var(--background)" stroke-width="3"></circle>
+                    <circle cx="18" cy="18" r="16" fill="none" stroke="var(--primary)" stroke-width="3" stroke-dasharray="{{ health_score }}, 100" stroke-linecap="round" style="transition: stroke-dasharray 1s ease;"></circle>
+                </svg>
+                <div style="position: absolute; font-size: 1.5rem; font-weight: 700; color: var(--text-main);">{{ health_score }}</div>
+            </div>
+            <div>
+                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 4px;">
+                    {% if health_score > 70 %}Excellent{% elif health_score > 40 %}Good{% else %}Needs Focus{% endif %}
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">
+                    Your savings rate is {{ health_score }}% this month. 
+                    {% if health_score > 20 %}You're building solid wealth!{% else %}Try to reduce non-essential spending.{% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card glass-card" style="grid-column: span 6;">
+        <h3 style="margin-bottom: 16px;">Budget Discipline</h3>
+        {% if monthly_budget > 0 %}
+            {% set budget_percent = (monthly_spent / monthly_budget * 100) | round | int %}
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Used: ₹{{ "%.2f"|format(monthly_spent) }}</span>
+                <span>Limit: ₹{{ "%.2f"|format(monthly_budget) }}</span>
+            </div>
+            <div style="width: 100%; height: 12px; background: var(--background); border-radius: 6px; overflow: hidden; border: 1px solid var(--border);">
+                <div style="width: {{ [budget_percent, 100] | min }}%; height: 100%; background: {% if budget_percent > 90 %}var(--danger){% elif budget_percent > 70 %}var(--primary){% else %}var(--secondary){% endif %}; transition: width 1s ease;"></div>
+            </div>
+            <div style="margin-top: 12px; font-weight: 600; text-align: right;">
+                {% if monthly_budget >= monthly_spent %}
+                    ₹{{ "%.2f"|format(monthly_budget - monthly_spent) }} Left
+                {% else %}
+                    <span style="color: var(--danger);">₹{{ "%.2f"|format(monthly_spent - monthly_budget) }} Over Budget</span>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="empty-state" style="padding: 10px;">
+                <p>No budget set for this month.</p>
+                <a href="{{ url_for('dashboard.budget') }}" class="btn btn-primary" style="padding: 4px 12px; font-size: 0.8rem; margin-top: 8px;">Set Budget</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="stat-card glass-card" style="grid-column: span 12; display: flex; justify-content: space-around; padding: 24px;">
+        <div style="text-align: center;">
+            <div class="stat-title" style="font-size: 0.85rem; margin-bottom: 8px;">Active Subscriptions</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: #0891B2;">₹{{ "%.2f"|format(monthly_subs) }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Monthly Fixed</div>
+        </div>
+        <div style="width: 1px; background: var(--border);"></div>
+        <div style="text-align: center;">
+            <div class="stat-title" style="font-size: 0.85rem; margin-bottom: 8px;">Recurring Bills</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">₹{{ "%.2f"|format(monthly_recurring) }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Predicted Spend</div>
+        </div>
+        <div style="width: 1px; background: var(--border);"></div>
+        <div style="text-align: center;">
+            <div class="stat-title" style="font-size: 0.85rem; margin-bottom: 8px;">Savings Potential</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">₹{{ "%.2f"|format(monthly_budget - monthly_spent if monthly_budget > monthly_spent else 0) }}</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Based on Budget</div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="chart-card glass-card">
+        <h3 style="margin-bottom: 16px;">Monthly Trend</h3>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="pie-card glass-card">
+        <h3 style="margin-bottom: 16px;">By Category</h3>
+        <div style="position: relative; height: 300px; width: 100%;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Yearly Analytics Section -->
+    <div class="chart-card glass-card" style="grid-column: span 12; margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h3>Yearly Financial Overview</h3>
+            <div id="yearlyPeakStats" style="display: flex; gap: 12px;">
+                <!-- Will be filled by JS -->
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <div style="position: relative; height: 300px;">
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted);">Income vs Expenses (By Year)</h4>
+                <canvas id="trueYearlyChart"></canvas>
+            </div>
+            <div style="position: relative; height: 300px;">
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted);">Savings Growth Trend</h4>
+                <canvas id="savingsGrowthChart"></canvas>
+            </div>
+        </div>
+        
+        <div style="margin-top: 32px; position: relative; height: 300px;">
+            <h4 style="margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted);">Monthly Breakdown (Last 12 Months)</h4>
+            <canvas id="yearlyChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="transactions-card glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 data-i18n="dashboard.recent">Recent Transactions</h3>
+            <a href="{{ url_for('expenses.expenses_view') }}" class="btn" style="background: var(--surface-solid); border: 1px solid var(--border); color: var(--text-main);" data-i18n="dashboard.view_all">View All</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="table.date">Date</th>
+                        <th data-i18n="table.title">Title</th>
+                        <th data-i18n="table.category">Category</th>
+                        <th data-i18n="table.amount">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in recent_expenses %}
+                    <tr>
+                        <td>{{ expense.date }}</td>
+                        <td style="font-weight: 500;">{{ expense.title }}</td>
+                        <td>
+                            <span class="category-badge">
+                                {{ expense.category }}
+                            </span>
+                        </td>
+                        <td style="font-weight: 600; color: var(--danger);">
+                            -₹{{ "%.2f"|format(expense.amount) }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="ph ph-receipt empty-state-icon"></i>
+                                <h4 style="margin-bottom: 8px;">No expenses found</h4>
+                                <p data-i18n="dashboard.no_data">Start tracking your spending smarter.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Fetch Chart Data
+    fetch('/api/chart-data')
+        .then(res => res.json())
+        .then(data => {
+            initCharts(data);
+        });
+        
+        
+    // Fetch AI Insights
+    function loadInsights() {
+        const container = document.getElementById('aiInsightsContainer');
+        const refreshBtn = document.getElementById('refreshAiBtn');
+        
+        container.innerHTML = `
+            <div class="insight-card">
+                <div class="insight-icon-wrapper skeleton-avatar skeleton"></div>
+                <div class="insight-content">
+                    <div class="insight-title skeleton skeleton-text" style="width: 30%;"></div>
+                    <div class="insight-text skeleton skeleton-text"></div>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon-wrapper skeleton-avatar skeleton"></div>
+                <div class="insight-content">
+                    <div class="insight-title skeleton skeleton-text" style="width: 40%;"></div>
+                    <div class="insight-text skeleton skeleton-text"></div>
+                </div>
+            </div>`;
+        if (refreshBtn) refreshBtn.classList.add('ph-spin');
+        
+        fetch('/api/insights')
+            .then(res => res.json())
+            .then(data => {
+                if (refreshBtn) refreshBtn.classList.remove('ph-spin');
+                if (data.insights && data.insights.length > 0) {
+                    container.innerHTML = '';
+                    data.insights.forEach((insight, index) => {
+                        const icons = ['ph-lightbulb', 'ph-trend-up', 'ph-warning-circle'];
+                        const titles = ['Smart Tip', 'Observation', 'Alert'];
+                        const icon = icons[index % icons.length];
+                        const title = titles[index % titles.length];
+                        
+                        // Clean up insight text (remove asterisks or leading dashes)
+                        const cleanInsight = insight.replace(/^[\s*-]+/, '').trim();
+                        
+                        const cardHTML = `
+                            <div class="insight-card fade-in" style="animation-delay: ${index * 0.1}s">
+                                <div class="insight-icon-wrapper">
+                                    <i class="ph ${icon}"></i>
+                                </div>
+                                <div class="insight-content">
+                                    <div class="insight-title">${title}</div>
+                                    <div class="insight-text">${cleanInsight}</div>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += cardHTML;
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="insight-card">
+                            <div class="insight-icon-wrapper"><i class="ph ph-info"></i></div>
+                            <div class="insight-content">
+                                <div class="insight-text">Add more expenses to get personalized insights.</div>
+                            </div>
+                        </div>`;
+                }
+            })
+            .catch(err => {
+                if (refreshBtn) refreshBtn.classList.remove('ph-spin');
+                container.innerHTML = `
+                    <div class="insight-card">
+                        <div class="insight-icon-wrapper" style="background: rgba(239,68,68,0.1); color: var(--danger);">
+                            <i class="ph ph-warning"></i>
+                        </div>
+                        <div class="insight-content">
+                            <div class="insight-text" style="color: var(--danger);">Failed to load insights. Please try again.</div>
+                        </div>
+                    </div>`;
+            });
+    }
+
+    loadInsights();
+    
+    document.getElementById('refreshAiBtn').addEventListener('click', loadInsights);
+</script>
+{% endblock %}

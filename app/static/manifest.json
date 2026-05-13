@@ -1,0 +1,21 @@
+{
+  "name": "BudgetBee - Smart Spending",
+  "short_name": "BudgetBee",
+  "description": "Smart Spending Made Simple.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#F59E0B",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192.png?text=SE",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512.png?text=SE",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block page_title %}<span data-i18n="nav.budget">Budget</span>{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    
+    <!-- Set Budget Form -->
+    <div class="stat-card glass-card" style="grid-column: span 4; align-self: start;">
+        <h3 style="margin-bottom: 24px;" data-i18n="budget.set">Set Monthly Budget</h3>
+        
+        <form method="POST" action="{{ url_for('dashboard.budget') }}">
+            <div class="form-group">
+                <label class="form-label" data-i18n="budget.month">Month</label>
+                <input type="month" name="month" id="budgetMonth" class="form-control" required value="{{ current_month }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" data-i18n="budget.amount">Budget Amount (₹)</label>
+                <input type="number" step="0.01" name="amount" class="form-control" required placeholder="0.00">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="ph ph-target"></i> <span data-i18n="budget.save">Save Budget</span></button>
+        </form>
+    </div>
+
+    <!-- Budget History List -->
+    <div class="chart-card glass-card" style="grid-column: span 8;">
+        
+        <!-- Filters -->
+        <div style="margin-bottom: 24px;">
+            <form method="GET" action="{{ url_for('dashboard.budget') }}" style="display: flex; gap: 12px; align-items: center;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                    <label class="form-label" style="font-size: 0.8rem;">Filter by Year</label>
+                    <select name="year" class="form-control" onchange="this.form.submit()">
+                        <option value="">All Years</option>
+                        {% set current_year = current_month[:4] %}
+                        {% for y in range(2023, 2031) %}
+                        <option value="{{ y }}" {% if request.args.get('year') == y|string %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <a href="{{ url_for('dashboard.budget') }}" class="btn btn-icon" style="margin-top: 24px; background: var(--surface-solid); border: 1px solid var(--border); color: var(--text-main);"><i class="ph ph-x"></i></a>
+            </form>
+        </div>
+        
+        <h3 style="margin-bottom: 24px;" data-i18n="budget.history">Budget History</h3>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-i18n="budget.month">Month</th>
+                        <th data-i18n="budget.amount">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in budgets %}
+                    <tr>
+                        <td style="font-weight: 500;">{{ b.month }}</td>
+                        <td style="font-weight: 600; color: var(--primary);">
+                            ₹{{ "%.2f"|format(b.amount) }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <i class="ph ph-target" style="font-size: 3rem; margin-bottom: 8px; opacity: 0.5;"></i>
+                            <p data-i18n="budget.no_found">No budgets set yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

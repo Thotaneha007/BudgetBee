@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('language', 'en') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetBee - Smart Spending Made Simple</title>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#F59E0B">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {% if category == 'success' %}
+                            <i class="ph ph-check-circle" style="font-size: 1.5rem;"></i>
+                        {% elif category == 'error' %}
+                            <i class="ph ph-warning-circle" style="font-size: 1.5rem;"></i>
+                        {% else %}
+                            <i class="ph ph-info" style="font-size: 1.5rem;"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% block body %}
+    <!-- Sidebar -->
+    <aside class="sidebar glass-panel" id="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">
+                <!-- BudgetBee Logo (Hexagon + B) -->
+                <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M50 5L90 28V72L50 95L10 72V28L50 5Z" fill="url(#hexGradient)" stroke="var(--primary-hover)" stroke-width="2"/>
+                    <path d="M38 35H55C62 35 65 38 65 44C65 48 62 51 58 52C64 53 68 56 68 62C68 68 64 72 55 72H38V35ZM48 49H54C57 49 58 48 58 45C58 42 57 41 54 41H48V49ZM48 63H55C58 63 59 62 59 58C59 54 58 53 55 53H48V63Z" fill="white"/>
+                    <defs>
+                        <linearGradient id="hexGradient" x1="10" y1="5" x2="90" y2="95" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="var(--primary)"/>
+                            <stop offset="1" stop-color="var(--primary-hover)"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="brand-text">Budget<span>Bee</span></div>
+        </div>
+        
+        <ul class="nav-links">
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard.dashboard_view') }}"class="{% if request.endpoint == 'dashboard.dashboard_view' %}active{% endif %}">
+                    <i class="ph ph-squares-four"></i>
+                    <span data-i18n="nav.dashboard">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('expenses.expenses_view') }}"class="{% if request.endpoint == 'expenses.expenses_view' %}active{% endif %}">
+                    <i class="ph ph-receipt"></i>
+                    <span data-i18n="nav.expenses">Expenses</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('income.income_view') }}" class="{% if request.endpoint == 'income.income_view' %}active{% endif %}">
+                    <i class="ph ph-wallet"></i>
+                    <span>Income</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard.budget') }}" class="{% if request.endpoint == 'dashboard.budget' %}active{% endif %}">
+                    <i class="ph ph-chart-pie-slice"></i>
+                    <span data-i18n="nav.budget">Budget</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('goals.goals_view') }}" class="{% if request.endpoint == 'goals.goals_view' %}active{% endif %}">
+                    <i class="ph ph-target"></i>
+                    <span>Goals</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('dashboard.settings') }}" class="{% if request.endpoint == 'dashboard.settings' %}active{% endif %}">
+                    <i class="ph ph-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </li>
+            <li class="nav-item" style="margin-top: auto;">
+                <a href="{{ url_for('auth.logout') }}">
+                    <i class="ph ph-sign-out"></i>
+                    <span data-i18n="nav.logout">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        
+        <!-- Mobile Bottom Nav -->
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard.dashboard_view') }}" class="bottom-nav-item {% if request.endpoint == 'dashboard.dashboard_view' %}active{% endif %}">
+                <i class="ph ph-squares-four"></i>
+                <span data-i18n="nav.dashboard">Home</span>
+            </a>
+            <a href="{{ url_for('income.income_view') }}" class="bottom-nav-item {% if request.endpoint == 'income.income_view' %}active{% endif %}">
+                <i class="ph ph-wallet"></i>
+                <span>Income</span>
+            </a>
+            <a href="{{ url_for('expenses.expenses_view') }}" class="bottom-nav-item {% if request.endpoint == 'expenses.expenses_view' %}active{% endif %}">
+                <i class="ph ph-receipt"></i>
+                <span data-i18n="nav.expenses">Expenses</span>
+            </a>
+            <a href="{{ url_for('goals.goals_view') }}" class="bottom-nav-item {% if request.endpoint == 'goals.goals_view' %}active{% endif %}">
+                <i class="ph ph-target"></i>
+                <span>Goals</span>
+            </a>
+            <a href="{{ url_for('dashboard.budget') }}" class="bottom-nav-item {% if request.endpoint == 'dashboard.budget' %}active{% endif %}">
+                <i class="ph ph-chart-pie-slice"></i>
+                <span data-i18n="nav.budget">Budget</span>
+            </a>
+        </nav>
+
+        <nav class="top-navbar glass-panel" style="border-radius: 0 0 16px 16px; border-top: none; border-left: none; border-right: none;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <i class="ph ph-list mobile-toggle" id="mobileToggle"></i>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            
+            <div class="navbar-right">
+                <!-- AI Voice Input -->
+                <button class="btn-icon" id="voiceBtn" title="Voice Input" aria-label="Add expense by voice">
+                    <i class="ph ph-microphone"></i>
+                </button>
+                
+                <!-- Language Selector -->
+                <select class="form-control" id="languageSelect" style="width: auto; padding: 6px 12px;" onchange="changeLanguage(this.value)">
+                    <option value="en" {% if session.get('language') == 'en' %}selected{% endif %}>Eng</option>
+                    <option value="hi" {% if session.get('language') == 'hi' %}selected{% endif %}>हिंदी</option>
+                    <option value="te" {% if session.get('language') == 'te' %}selected{% endif %}>తెలుగు</option>
+                </select>
+                
+                <!-- Theme Toggle -->
+                <button class="btn-icon" id="themeToggle" title="Toggle Theme">
+                    <i class="ph ph-moon"></i>
+                </button>
+                
+                <!-- User Profile -->
+                <div class="btn-icon" style="background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">
+                    {{ session.get('username', 'U')[0] | upper }}
+                </div>
+            </div>
+        </nav>
+        
+        <div class="content-area">
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Floating Add Button for Mobile -->
+        <div class="fab-container">
+            <button class="fab" id="fabMain">
+                <i class="ph ph-plus"></i>
+            </button>
+            <div class="fab-menu" id="fabMenu">
+                <a href="{{ url_for('expenses.expenses_view') }}" class="fab-item">
+                    <i class="ph ph-receipt"></i>
+                    <span>Expense</span>
+                </a>
+                <a href="{{ url_for('income.income_view') }}" class="fab-item">
+                    <i class="ph ph-wallet"></i>
+                    <span>Income</span>
+                </a>
+            </div>
+        </div>
+    </main>
+    {% endblock %}
+
+    <script src="{{ url_for('static', filename='js/translations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed', err));
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
